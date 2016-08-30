@@ -9,15 +9,15 @@ import matplotlib.pyplot as plt;
 #%%
 # Definición de la función de inicialización
 def initpob(npob,nbits,xmin,xmax):
-  # xint = np.round(((2**nbits)-1)*np.random.rand(npob,1));
-  #
-  # npob = numero de pobladores
-  # nbits = numero de bits del codigo genetico
-  # xmin = limite inferior del espacio de busqueda
-  # xmax = limite superior del espacio de busqueda
-  xint = np.random.randint(2**nbits,size=(npob,1))
-  xpob = ((xmax-xmin)/(np.double(2**nbits)-1))*xint+xmin;
-  return xpob,xint
+    # xint = np.round(((2**nbits)-1)*np.random.rand(npob,1));
+    #
+    # npob = numero de pobladores
+    # nbits = numero de bits del codigo genetico
+    # xmin = limite inferior del espacio de busqueda
+    # xmax = limite superior del espacio de busqueda
+    xint = np.random.randint(2**nbits,size=(npob,1))
+    xpob = ((xmax-xmin)/((2**nbits)-1))*xint+xmin;
+    return xpob,xint
 
 #%%
 # Definición de la función de selección
@@ -50,7 +50,7 @@ def selecbest(npadres,xpob,xint,ypob,minmax):
 
 #%%
 #Definición de la función de cruzamiento
-def cruzamiento(xint,nhijo,nbits,xmin,xmax):
+def cruzamiento(xint,nhijo,nbits,xmin,xmax,method):
   # Realizacion de nhijo numero de pobladores nuevos a partir de xint
   #
   # xint = cromosoma en decimal
@@ -59,33 +59,61 @@ def cruzamiento(xint,nhijo,nbits,xmin,xmax):
   # xmin = limite inferior del espacio de busqueda
   # xmax = limite superior del espacio de busqueda
 
-  npadre,ntemp = np.shape(xint);
-  xinthijo=np.zeros((nhijo,1));
-  xhijo=xinthijo;
-  if npadre==1:
+  npadre, ntemp = np.shape(xint)
+  xinthijo = np.zeros((nhijo,1))
+  xhijo = xinthijo
+  if npadre == 1:
     print("Precuación: Con un solo padre no se tiene recombinación de genes")
-  px = np.tile(np.arange(0,npadre),nhijo//npadre+1);
+  px = np.tile(np.arange(0,npadre),nhijo//npadre+1)
   for ind in range(0,nhijo):
-    cromx = np.binary_repr(np.int(xint[px[ind],0]),width=nbits);
-    cromy = np.binary_repr(np.int(xint[px[ind+1],0]),width=nbits);
-    crombit = np.random.randint(nbits-1)+1;
-    # Metodo 1 para cruzamiento
-    if ind%2 == 0:
-      cromhijo = cromx[0:crombit]+cromy[crombit:10];
-    else:
-      cromhijo = cromy[crombit:10]+cromx[0:crombit];
+    cromx = np.binary_repr(np.int(xint[px[ind],0]),width=nbits)
+    cromy = np.binary_repr(np.int(xint[px[ind+1],0]),width=nbits)
 
-    #Metodo 2 para cruzamiento
-    ##
+    if method==1:
+      # Metodo 1 para cruzamiento
+      crombit = np.random.randint(nbits-1)+1;
+      if ind%2 == 0:
+        cromhijo = cromx[0:crombit]+cromy[crombit:10];
+      else:
+        cromhijo = cromy[crombit:10]+cromx[0:crombit];
+    elif method==2:
+			#Metodo 2 para cruzamiento "Doble punto cruce"
+			cruce1 = np.random.randint(nbits - 1) + 1
+			while True:
+				cruce2 = np.random.randint(nbits - 1) + 1
+				if (cruce2 != cruce1):
+					break
+			if cruce1 < cruce2:
+				if ind % 2 == 0:
+					cromhijo = cromx[0:cruce1] + cromy[cruce1:cruce2] + cromx[cruce2:nbits]
+				else:
+					cromhijo = cromy[0:cruce1] + cromx[cruce1:cruce2] + cromy[cruce2:nbits]
+			else: # cruce2<cruce1:
+				if ind % 2 == 0: #ver con que padre empieza el cruce
+					cromhijo = cromx[0:cruce2] + cromy[cruce2:cruce1] + cromx[cruce2:nbits];
+				else:
+					cromhijo = cromy[0:cruce2] + cromx[cruce2:cruce2] + cromy[cruce2:nbits];
+    elif method==3:
+      cromhijo = [0 for i in range(nbits)]
+      for i in range(nbits):
+        randomCromNumber = np.random.randint(2)
+        if (randomCromNumber == 0):
+          cromhijo[i] = str(cromx[i])
+        else:
+          cromhijo[i] = str(cromy[i])
 
-    #Metodo 3 para cruzamiento
-    ##
+      cromhijo = ''.join(cromhijo)
+      ##
+    elif method==4:
+      preliminarBinary = np.binary_repr(int(cromy, 2) + int(cromx, 2), width=nbits)
+      if len(preliminarBinary) == 10:
+        cromhijo = preliminarBinary
+      else:
+        cromhijo = preliminarBinary[1: ]
+      ##
 
-    #Metodo 4 para cruzamiento
-    ##
-
-    xinthijo[ind,0]=int(cromhijo,2);
-    xhijo[ind,0] = ((xmax-xmin)/(np.double(2**nbits)-1))*xinthijo[ind,0]+xmin;
+    xinthijo[ind,0]=int(cromhijo,2)
+    xhijo[ind,0] = ((xmax-xmin)/(np.double(2**nbits)-1))*xinthijo[ind,0]+xmin
   return xhijo,xinthijo
 
 #%%
@@ -108,7 +136,20 @@ def mutacion(xint,nmut,nbits,xmin,xmax):
     else:
       crom = crom[0:nbitmut]+'1'+crom[nbitmut+1:nbits];
     xint[nhijmut,0]=int(crom,2);
-  xmut = ((xmax-xmin)/(np.double(2**nbits)-1))*xint+xmin;
+  xmut = ((xmax-xmin)/((2**nbits)-1))*xint+xmin;
   return xmut,xint
-
 #%%
+
+def rast(x1, x2):
+  return 10 + x1 ** 2 - 10 * np.cos(5 * x1) + \
+         x2 ** 2 - 10 * np.cos(5 * x2)
+
+def ackley(x1, x2):
+  return -10 - np.exp(-np.sqrt(x1 ** 2)) \
+      -np.exp(np.cos(5 * x1)) \
+      -10 * np.exp(-np.sqrt(x2 ** 2)) \
+      -np.exp(np.cos(5*x2)) + 10 + np.exp(1)
+
+def rosen(x1, x2):
+  return 100 * (x2-x1)**2 + (1 - x1)**2
+

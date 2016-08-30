@@ -1,4 +1,4 @@
-#Alberto Ignacio Romero Navia. Problema numero 1
+#Alberto Ignacio Romero Navia. Problema numero 2.
 from utils import initpob, mutacion, selecbest, cruzamiento
 import numpy as np
 import matplotlib.pyplot as plt
@@ -8,7 +8,6 @@ nbits = 10
 xmin = 0
 xmax = 1023
 
-METHOD = 4
 npadres = 10
 nhijos = npob - npadres
 
@@ -21,17 +20,19 @@ initialParents2, initialParentsInt2 = initpob(npob, nbits, xmin, xmax)
 initialParents3, initialParentsInt3 = initpob(npob, nbits, xmin, xmax)
 
 for i in range(iterations):
-  yp = -initialParents * (10 + 100 * initialParents) - initialParents2 * (5 + 40 * initialParents2) \
-       - initialParents3 * (5 + 50 * initialParents3)
+  yp = initialParents ** 2 - 2 * initialParents + 1 - 10 * np.cos(initialParents - 1) + \
+       initialParents2 ** 2 + initialParents2 + 0.25 - 10 * np.cos(initialParents + 1) + \
+       initialParents3 - 10 * np.cos(initialParents3)
+
   yprom[i] = np.mean(yp)
 
-  bestParents, bestParentsInt = selecbest(npadres, initialParents, initialParentsInt, yp, 1)
-  bestParents2, bestParentsInt2 = selecbest(npadres, initialParents2, initialParentsInt2, yp, 1)
-  bestParents3, bestParentsInt3 = selecbest(npadres, initialParents3, initialParentsInt3, yp, 1)
+  bestParents, bestParentsInt = selecbest(npadres, initialParents, initialParentsInt, yp, -1)
+  bestParents2, bestParentsInt2 = selecbest(npadres, initialParents2, initialParentsInt2, yp, -1)
+  bestParents3, bestParentsInt3 = selecbest(npadres, initialParents3, initialParentsInt3, yp, -1)
 
-  childs, childsInt = cruzamiento(bestParentsInt, nhijos, nbits, xmin, xmax, METHOD)
-  childs2, childsInt2 = cruzamiento(bestParentsInt2, nhijos, nbits, xmin, xmax, METHOD)
-  childs3, childsInt3 = cruzamiento(bestParentsInt3, nhijos, nbits, xmin, xmax, METHOD)
+  childs, childsInt = cruzamiento(bestParentsInt, nhijos, nbits, xmin, xmax, 1)
+  childs2, childsInt2 = cruzamiento(bestParentsInt2, nhijos, nbits, xmin, xmax, 1)
+  childs3, childsInt3 = cruzamiento(bestParentsInt3, nhijos, nbits, xmin, xmax, 1)
 
   if i % 10 == 0:
     childs, childsInt = mutacion(childsInt, 1, nbits, xmin, xmax)
@@ -53,11 +54,11 @@ for i in range(iterations):
   initialParentsInt3[0: npadres, 0] = bestParentsInt3[:, 0]
   initialParentsInt3[npadres: npob, 0] = childsInt3[:, 0]
 
-#plt.plot(yprom)
+plt.plot(yprom)
 print initialParents
 print initialParents2
 print initialParents3
 plt.show()
 
 # Despues de correr el algoritmo varias veces, el resultado fue:
-# Maximo de la funcion: 0
+# Minimo de la funcion: 0

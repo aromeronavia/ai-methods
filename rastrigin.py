@@ -1,16 +1,16 @@
-from utils import initpob, mutacion, selecbest, cruzamiento
+from utils import initpob, mutacion, selecbest, cruzamiento, rast, ackley, rosen
 import numpy as np
 import matplotlib.pyplot as plt
 
 npob = 20
-nbits = 10
-xmin = 0
-xmax = 1023
+nbits = 12
+xmin = -10
+xmax = 10
 
 npadres = 10
 nhijos = npob - npadres
 
-iterations = 100
+iterations = 1000
 
 yprom = np.zeros(iterations)
 
@@ -18,11 +18,10 @@ initialParents, initialParentsInt = initpob(npob, nbits, xmin, xmax)
 initialParents2, initialParentsInt2 = initpob(npob, nbits, xmin, xmax)
 
 for i in range(iterations):
-  yp = initialParents ** 2 + initialParents2
-  yprom[i] = np.mean(yp)
+  yp = rosen(initialParents, initialParents2)
 
-  bestParents, bestParentsInt = selecbest(npadres, initialParents, initialParentsInt, yp, 1)
-  bestParents2, bestParentsInt2 = selecbest(npadres, initialParents2, initialParentsInt2, yp, 1)
+  bestParents, bestParentsInt = selecbest(npadres, initialParents, initialParentsInt, yp, -1)
+  bestParents2, bestParentsInt2 = selecbest(npadres, initialParents2, initialParentsInt2, yp, -1)
 
   childs, childsInt = cruzamiento(bestParentsInt, nhijos, nbits, xmin, xmax, 1)
   childs2, childsInt2 = cruzamiento(bestParentsInt2, nhijos, nbits, xmin, xmax, 1)
@@ -41,5 +40,9 @@ for i in range(iterations):
   initialParentsInt2[0: npadres, 0] = bestParentsInt2[:, 0]
   initialParentsInt2[npadres: npob, 0] = childsInt2[:, 0]
 
-plt.plot(yprom)
+  yprom[i] = np.mean(yp)
+
+plt.plot(np.arange(0,iterations),yprom,'b')
 plt.show()
+
+yp = rosen(initialParents, initialParents2)
