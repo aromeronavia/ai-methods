@@ -10,12 +10,10 @@ c1 = 0.01
 c2 = 0.01
 
 x = np.random.rand(nParticles)
-
 bestLocalParticles = x # Mejores locales iniciales x1pl
-bestLocalParticlesPerformance = 10000000 * np.ones(nParticles) #Desempeno local inicial fpl
-
 bestGlobal = 0 #x1pg
 bestGlobalPerformance = 1000000 #fpg
+bestLocalParticlesPerformance = 10000000 * np.ones(nParticles) #Desempeno local inicial fpl
 
 speed = np.zeros(nParticles) # Velocidades iniciales vx1
 

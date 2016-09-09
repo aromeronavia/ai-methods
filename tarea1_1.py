@@ -8,7 +8,7 @@ nbits = 10
 xmin = 0
 xmax = 1023
 
-METHOD = 4
+METHOD = 2
 npadres = 10
 nhijos = npob - npadres
 

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-
-"""
+# Alberto Ignacio Romero Navia
+# Alexa Beas Garcia
 
 import numpy as np;
 import matplotlib.pyplot as plt;
@@ -77,23 +76,25 @@ def cruzamiento(xint,nhijo,nbits,xmin,xmax,method):
       else:
         cromhijo = cromy[crombit:10]+cromx[0:crombit];
     elif method==2:
-			#Metodo 2 para cruzamiento "Doble punto cruce"
-			cruce1 = np.random.randint(nbits - 1) + 1
-			while True:
-				cruce2 = np.random.randint(nbits - 1) + 1
-				if (cruce2 != cruce1):
-					break
-			if cruce1 < cruce2:
-				if ind % 2 == 0:
-					cromhijo = cromx[0:cruce1] + cromy[cruce1:cruce2] + cromx[cruce2:nbits]
-				else:
-					cromhijo = cromy[0:cruce1] + cromx[cruce1:cruce2] + cromy[cruce2:nbits]
-			else: # cruce2<cruce1:
-				if ind % 2 == 0: #ver con que padre empieza el cruce
-					cromhijo = cromx[0:cruce2] + cromy[cruce2:cruce1] + cromx[cruce2:nbits];
-				else:
-					cromhijo = cromy[0:cruce2] + cromx[cruce2:cruce2] + cromy[cruce2:nbits];
+      #Metodo 2 para cruzamiento "Doble punto cruce"
+      cruce1=np.random.randint(nbits-1)+1;#calcular cruces
+      while True:
+        cruce2=np.random.randint(nbits-1)+1;
+        if(cruce2!=cruce1):
+          break;#los cruces deben ser diferentes
+      if cruce1<cruce2:
+        if ind%2==0:
+          cromhijo=cromx[0:cruce1]+cromy[cruce1:cruce2]+cromx[cruce2:nbits];
+        else:
+          cromhijo = cromy[0:cruce1]+cromx[cruce1:cruce2]+cromy[cruce2:nbits];
+      else: # cruce2<cruce1:
+        if ind%2==0:#ver con que padre empieza el cruce
+          cromhijo = cromx[0:cruce2]+cromy[cruce2:cruce1]+cromx[cruce1:nbits];
+        else:
+          cromhijo = cromy[0:cruce2]+cromx[cruce2:cruce1]+cromy[cruce1:nbits];
+      ####################
     elif method==3:
+        # Metodo de cruzamiento "uniforme"
       cromhijo = [0 for i in range(nbits)]
       for i in range(nbits):
         randomCromNumber = np.random.randint(2)
@@ -105,12 +106,8 @@ def cruzamiento(xint,nhijo,nbits,xmin,xmax,method):
       cromhijo = ''.join(cromhijo)
       ##
     elif method==4:
-      preliminarBinary = np.binary_repr(int(cromy, 2) + int(cromx, 2), width=nbits)
-      if len(preliminarBinary) == 10:
-        cromhijo = preliminarBinary
-      else:
-        cromhijo = preliminarBinary[1: ]
-      ##
+      #Metodo 4 para cruzamiento "Aritmetico"
+      cromhijo=np.binary_repr(int(bin(np.int(xint[px[ind],0])|np.int(xint[px[ind+1],0])),2),nbits)
 
     xinthijo[ind,0]=int(cromhijo,2)
     xhijo[ind,0] = ((xmax-xmin)/(np.double(2**nbits)-1))*xinthijo[ind,0]+xmin
